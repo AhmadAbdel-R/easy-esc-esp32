@@ -1,50 +1,75 @@
-# easy-esc-esp32 library
+# esc_subsystem
 
-Beginner-friendly ESC control for ESP32.
+Core ESC library used by this project.
 
-## Include
+Main public header:
 
 ```cpp
 #include <easy_esc.h>
 ```
 
-## Main classes
+## Main Classes
 
-1. `esc::EasyEscMotor` (single motor, servo-style)
-2. `esc::EasyEsc` (multi-motor helper)
+- `esc::EasyEscMotor`: single-motor object, simplest API
+- `esc::EasyEsc`: multi-motor object (1 to 4 motors)
 
-## Quick single-motor example
+## Object Creation
+
+Single motor:
 
 ```cpp
-#include <easy_esc.h>
-
 esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300);
-
-void setup() {
-  MOTOR1.begin();
-  MOTOR1.arm();
-}
-
-void loop() {
-  MOTOR1.update();
-  MOTOR1.spinPercent(20);
-}
 ```
 
-## Defaults
+Four motors:
 
-- DShot mode: `DSHOT300`
-- raw throttle range: `0` or `48..2047`
+```cpp
+esc::EasyEsc ESC4(
+  4,
+  GPIO_NUM_41, GPIO_NUM_42, GPIO_NUM_40, GPIO_NUM_39,
+  GPIO_NUM_3,
+  DSHOT300,
+  20000,
+  10
+);
+```
 
-## Time units
+## Required Runtime Flow
 
-- timeout and refresh settings: milliseconds
-- passthrough timing settings: microseconds
+1. `begin()`
+2. `arm()`
+3. call `update()` continuously in `loop()`
+4. send throttle (`spinRaw`, `setMotorRaw`, `setAllRaw`)
+5. `disarm()` or `stop()` when done
 
-## Passthrough status
+## Timing Configuration
 
-Passthrough is experimental:
+- `setTimeoutMs(ms)`: signal timeout (milliseconds)
+- `setRefreshMs(ms)`: output keepalive resend interval (milliseconds)
+- `setHoldArmOnSignalTimeout(true/false)`: choose timeout behavior
 
-- BLHeli_S bootloader flow is incomplete
-- CRC/framing checks are incomplete
-- read/write/erase behavior is scaffold-level
+If hold-on-timeout is enabled, timeout forces zero throttle but stays armed.
+
+## DShot Defaults
+
+- default mode: `DSHOT300`
+- valid throttle range: `0` or `48..2047`
+
+## Current Monitor
+
+Available helpers:
+
+- `readCurrent()`
+- `currentAmps()`
+- `currentMilliamps()`
+- `currentMilliVolts()`
+- `setCurrentCalibration(zeroMv, mvPerAmp)`
+- `calibrateCurrentZero(samples, sampleDelayMs)`
+
+## Passthrough
+
+Passthrough methods exist, but this part is experimental:
+
+- incomplete BLHeli_S bootloader flow
+- incomplete CRC/framing validation
+- scaffold-level read/write/erase behavior
