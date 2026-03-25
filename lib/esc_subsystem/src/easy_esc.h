@@ -17,6 +17,7 @@ struct EasyEscConfig
 {
     uint8_t motorCount = kMaxMotors;
     std::array<gpio_num_t, kMaxMotors> motorPins = {GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC};
+    std::array<bool, kMaxMotors> motorDirectionReversed = {false, false, false, false};
 
     gpio_num_t currentPin = GPIO_NUM_NC; // Use GPIO_NUM_NC to disable current monitor.
     float currentZeroOffsetMv = 0.0f;
@@ -47,7 +48,11 @@ public:
         uint32_t signalTimeoutMs = 20000,
         uint16_t outputRefreshMs = 10,
         float currentZeroOffsetMv = 0.0f,
-        float currentMvPerAmp = 33.0f);
+        float currentMvPerAmp = 33.0f,
+        bool m1Reversed = false,
+        bool m2Reversed = false,
+        bool m3Reversed = false,
+        bool m4Reversed = false);
 
     bool begin();
     void update(); // call in loop()
@@ -135,7 +140,8 @@ public:
         uint32_t signalTimeoutMs = 20000,
         uint16_t outputRefreshMs = 10,
         float currentZeroOffsetMv = 0.0f,
-        float currentMvPerAmp = 33.0f);
+        float currentMvPerAmp = 33.0f,
+        bool reversed = false);
 
     bool begin();
     void update();

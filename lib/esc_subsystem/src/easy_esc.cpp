@@ -63,10 +63,15 @@ EasyEsc::EasyEsc(
     uint32_t signalTimeoutMs,
     uint16_t outputRefreshMs,
     float currentZeroOffsetMv,
-    float currentMvPerAmp)
+    float currentMvPerAmp,
+    bool m1Reversed,
+    bool m2Reversed,
+    bool m3Reversed,
+    bool m4Reversed)
 {
     _cfg.motorCount = motorCount;
     _cfg.motorPins = {m1, m2, m3, m4};
+    _cfg.motorDirectionReversed = {m1Reversed, m2Reversed, m3Reversed, m4Reversed};
     _cfg.currentPin = currentPin;
     _cfg.currentZeroOffsetMv = currentZeroOffsetMv;
     _cfg.currentMvPerAmp = currentMvPerAmp;
@@ -438,6 +443,7 @@ EscControllerConfig EasyEsc::makeControllerConfig(uint8_t motorCount) const
     EscControllerConfig cfg;
     cfg.motorCount = motorCount;
     cfg.motorPins = _cfg.motorPins;
+    cfg.motorDirectionReversed = _cfg.motorDirectionReversed;
     cfg.dshotMode = _cfg.dshotMode;
     cfg.throttleMinRaw = kDshotThrottleMinRaw;
     cfg.throttleMaxRaw = kDshotThrottleMaxRaw;
@@ -464,7 +470,8 @@ EasyEscMotor::EasyEscMotor(
     uint32_t signalTimeoutMs,
     uint16_t outputRefreshMs,
     float currentZeroOffsetMv,
-    float currentMvPerAmp)
+    float currentMvPerAmp,
+    bool reversed)
     : _esc(1,
            motorPin,
            GPIO_NUM_NC,
@@ -475,7 +482,8 @@ EasyEscMotor::EasyEscMotor(
            signalTimeoutMs,
            outputRefreshMs,
            currentZeroOffsetMv,
-           currentMvPerAmp)
+           currentMvPerAmp,
+           reversed)
 {
 }
 

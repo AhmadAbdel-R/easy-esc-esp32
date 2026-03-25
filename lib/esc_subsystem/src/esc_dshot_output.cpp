@@ -423,6 +423,22 @@ Status EscDshotOutput::createDriver(uint8_t motor)
         return Status::DriverError;
     }
 
+    const bool reverseDirection = _config.motorDirectionReversed[motor];
+    const dshot_result_t directionResult = _drivers[motor]->setMotorSpinDirection(reverseDirection);
+    if (!directionResult.success)
+    {
+        _lastDriverErrorCode = static_cast<int32_t>(directionResult.result_code);
+        _lastDriverErrorMotor = static_cast<int8_t>(motor);
+        _lastDriverErrorPin = pin;
+        Serial.printf("[RMT] direction FAILED motor=%u gpio=%d code=%d reversed=%u\n",
+                      static_cast<unsigned>(motor),
+                      static_cast<int>(pin),
+                      static_cast<int>(_lastDriverErrorCode),
+                      static_cast<unsigned>(reverseDirection));
+        clearDriver(motor);
+        return Status::DriverError;
+    }
+
     Serial.printf("[RMT] attach OK motor=%u gpio=%d\n",
                   static_cast<unsigned>(motor),
                   static_cast<int>(pin));

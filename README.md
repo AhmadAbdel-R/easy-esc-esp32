@@ -34,7 +34,7 @@ You do not need a special macro to use this library.
 Use a C++ object, like Servo:
 
 ```cpp
-esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300);
+esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300, 20000, 10, 0.0f, 33.0f, true);
 ```
 
 If you want cleaner configuration, define constants at the top of your file:
@@ -59,7 +59,7 @@ constexpr dshot_mode_t kMode = DSHOT300;
 #include <Arduino.h>
 #include <easy_esc.h>
 
-esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300);
+esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300, 20000, 10, 0.0f, 33.0f, true);
 
 void setup() {
   Serial.begin(115200);
@@ -98,7 +98,8 @@ esc::EasyEscMotor MOTOR1(
   20000,        // timeout ms
   10,           // refresh ms
   0.0f,         // current zero offset mV
-  33.0f         // current scale mV per amp
+  33.0f,        // current scale mV per amp
+  true          // reversed direction
 );
 ```
 
@@ -114,7 +115,13 @@ esc::EasyEsc ESC4(
   GPIO_NUM_3,   // current pin
   DSHOT300,     // mode
   20000,        // timeout ms
-  10            // refresh ms
+  10,           // refresh ms
+  0.0f,         // current zero offset mV
+  33.0f,        // current scale mV per amp
+  false,        // M1 reversed
+  true,         // M2 reversed
+  false,        // M3 reversed
+  false         // M4 reversed
 );
 ```
 
@@ -143,6 +150,9 @@ ESC4.update();
   - `setTimeoutMs(ms)`
   - `setRefreshMs(ms)`
   - `setHoldArmOnSignalTimeout(bool)`
+- Direction at object creation:
+  - `EasyEscMotor(..., reversed)`
+  - `EasyEsc(..., m1Reversed, m2Reversed, m3Reversed, m4Reversed)`
 - Current:
   - `readCurrent()`
   - `currentAmps()`
@@ -167,6 +177,7 @@ ESC4.update();
 
 - Valid throttle command is `0` (stop) or `48..2047` (run range).
 - This project default is `DSHOT300`.
+- Direction is applied during `begin()` via DShot spin-direction commands.
 
 ## Status Codes
 

@@ -18,7 +18,7 @@ Main public header:
 Single motor:
 
 ```cpp
-esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300);
+esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300, 20000, 10, 0.0f, 33.0f, true);
 ```
 
 Four motors:
@@ -30,7 +30,10 @@ esc::EasyEsc ESC4(
   GPIO_NUM_3,
   DSHOT300,
   20000,
-  10
+  10,
+  0.0f,
+  33.0f,
+  false, true, false, false
 );
 ```
 
@@ -54,6 +57,7 @@ If hold-on-timeout is enabled, timeout forces zero throttle but stays armed.
 
 - default mode: `DSHOT300`
 - valid throttle range: `0` or `48..2047`
+- direction is configurable at object creation and applied during `begin()`
 
 ## Current Monitor
 
