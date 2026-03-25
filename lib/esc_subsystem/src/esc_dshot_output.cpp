@@ -396,7 +396,7 @@ Status EscDshotOutput::createDriver(uint8_t motor)
                   static_cast<int>(pin),
                   static_cast<unsigned>(_config.dshotMode));
 
-    _drivers[motor] = std::make_unique<DShotRMT>(pin, _config.dshotMode);
+    _drivers[motor] = std::make_unique<DShotRMT>(pin, _config.dshotMode, _config.bidirectionalDshot);
     if (!_drivers[motor])
     {
         _lastDriverErrorCode = -1;

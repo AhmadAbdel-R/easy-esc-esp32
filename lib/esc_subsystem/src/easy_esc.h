@@ -23,6 +23,7 @@ struct EasyEscConfig
     float currentZeroOffsetMv = 0.0f;
     float currentMvPerAmp = 33.0f;
 
+    bool bidirectionalDshot = false;
     dshot_mode_t dshotMode = DSHOT300;
     uint32_t signalTimeoutMs = 20000;
     bool holdArmOnSignalTimeout = false;
@@ -52,7 +53,8 @@ public:
         bool m1Reversed = false,
         bool m2Reversed = false,
         bool m3Reversed = false,
-        bool m4Reversed = false);
+        bool m4Reversed = false,
+        bool bidirectionalDshot = false);
 
     bool begin();
     void update(); // call in loop()
@@ -141,7 +143,8 @@ public:
         uint16_t outputRefreshMs = 10,
         float currentZeroOffsetMv = 0.0f,
         float currentMvPerAmp = 33.0f,
-        bool reversed = false);
+        bool reversed = false,
+        bool bidirectionalDshot = false);
 
     bool begin();
     void update();

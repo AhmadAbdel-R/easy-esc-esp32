@@ -18,7 +18,7 @@ Main public header:
 Single motor:
 
 ```cpp
-esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300, 20000, 10, 0.0f, 33.0f, true);
+esc::EasyEscMotor MOTOR1(GPIO_NUM_41, GPIO_NUM_3, DSHOT300, 20000, 10, 0.0f, 33.0f, true, false);
 ```
 
 Four motors:
@@ -33,9 +33,12 @@ esc::EasyEsc ESC4(
   10,
   0.0f,
   33.0f,
-  false, true, false, false
+  false, true, false, false,
+  false
 );
 ```
+
+Set the final constructor argument to `true` to enable bidirectional DShot.
 
 ## Required Runtime Flow
 
@@ -57,6 +60,7 @@ If hold-on-timeout is enabled, timeout forces zero throttle but stays armed.
 
 - default mode: `DSHOT300`
 - valid throttle range: `0` or `48..2047`
+- bidirectional DShot option exists and defaults to `false`
 - direction is configurable at object creation and applied during `begin()`
 
 ## Current Monitor

@@ -99,7 +99,8 @@ esc::EasyEscMotor MOTOR1(
   10,           // refresh ms
   0.0f,         // current zero offset mV
   33.0f,        // current scale mV per amp
-  true          // reversed direction
+  true,         // reversed direction
+  false         // bidirectional DShot (default: false)
 );
 ```
 
@@ -121,9 +122,12 @@ esc::EasyEsc ESC4(
   false,        // M1 reversed
   true,         // M2 reversed
   false,        // M3 reversed
-  false         // M4 reversed
+  false,        // M4 reversed
+  false         // bidirectional DShot (default: false)
 );
 ```
+
+Enable bidirectional DShot by setting the final constructor argument to `true`.
 
 Use:
 
@@ -177,6 +181,7 @@ ESC4.update();
 
 - Valid throttle command is `0` (stop) or `48..2047` (run range).
 - This project default is `DSHOT300`.
+- Bidirectional DShot is available through wrapper config/constructors and defaults to `false`.
 - Direction is applied during `begin()` via DShot spin-direction commands.
 
 ## Status Codes
