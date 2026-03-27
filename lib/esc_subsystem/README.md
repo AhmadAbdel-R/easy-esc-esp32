@@ -34,11 +34,18 @@ esc::EasyEsc ESC4(
   0.0f,
   33.0f,
   false, true, false, false,
-  false
+  false,
+  48, 48, 48, 48
 );
 ```
 
 Set the final constructor argument to `true` to enable bidirectional DShot.
+
+RMT TX allocation:
+
+- `EasyEsc(..., bidirectionalDshot, m1TxBufferSymbols, m2TxBufferSymbols, m3TxBufferSymbols, m4TxBufferSymbols)`
+- `EasyEscMotor(..., bidirectionalDshot, txBufferSymbols)`
+- Use `0` to keep default allocation from `DShotRMT`.
 
 ## Required Runtime Flow
 

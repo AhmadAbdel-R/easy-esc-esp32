@@ -100,7 +100,8 @@ esc::EasyEscMotor MOTOR1(
   0.0f,         // current zero offset mV
   33.0f,        // current scale mV per amp
   true,         // reversed direction
-  false         // bidirectional DShot (default: false)
+  false,        // bidirectional DShot (default: false)
+  48            // RMT TX buffer symbols (default from DShotRMT)
 );
 ```
 
@@ -123,7 +124,11 @@ esc::EasyEsc ESC4(
   true,         // M2 reversed
   false,        // M3 reversed
   false,        // M4 reversed
-  false         // bidirectional DShot (default: false)
+  false,        // bidirectional DShot (default: false)
+  48,           // M1 RMT TX buffer symbols
+  48,           // M2 RMT TX buffer symbols
+  48,           // M3 RMT TX buffer symbols
+  48            // M4 RMT TX buffer symbols
 );
 ```
 
@@ -183,6 +188,13 @@ ESC4.update();
 - This project default is `DSHOT300`.
 - Bidirectional DShot is available through wrapper config/constructors and defaults to `false`.
 - Direction is applied during `begin()` via DShot spin-direction commands.
+
+## RMT Allocation
+
+- You can set per-motor RMT TX allocation using the final constructor arguments:
+  - `EasyEsc(..., bidirectionalDshot, m1TxBufferSymbols, m2TxBufferSymbols, m3TxBufferSymbols, m4TxBufferSymbols)`
+  - `EasyEscMotor(..., bidirectionalDshot, txBufferSymbols)`
+- Passing `0` uses the default from `DShotRMT`.
 
 ## Status Codes
 
