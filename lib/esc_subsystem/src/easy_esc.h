@@ -18,6 +18,11 @@ struct EasyEscConfig
     uint8_t motorCount = kMaxMotors;
     std::array<gpio_num_t, kMaxMotors> motorPins = {GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC};
     std::array<bool, kMaxMotors> motorDirectionReversed = {false, false, false, false};
+    std::array<uint16_t, kMaxMotors> motorTxBufferSymbols = {
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols};
 
     gpio_num_t currentPin = GPIO_NUM_NC; // Use GPIO_NUM_NC to disable current monitor.
     float currentZeroOffsetMv = 0.0f;
@@ -54,7 +59,11 @@ public:
         bool m2Reversed = false,
         bool m3Reversed = false,
         bool m4Reversed = false,
-        bool bidirectionalDshot = false);
+        bool bidirectionalDshot = false,
+        uint16_t m1TxBufferSymbols = kDefaultRmtTxBufferSymbols,
+        uint16_t m2TxBufferSymbols = kDefaultRmtTxBufferSymbols,
+        uint16_t m3TxBufferSymbols = kDefaultRmtTxBufferSymbols,
+        uint16_t m4TxBufferSymbols = kDefaultRmtTxBufferSymbols);
 
     bool begin();
     void update(); // call in loop()
@@ -144,7 +153,8 @@ public:
         float currentZeroOffsetMv = 0.0f,
         float currentMvPerAmp = 33.0f,
         bool reversed = false,
-        bool bidirectionalDshot = false);
+        bool bidirectionalDshot = false,
+        uint16_t txBufferSymbols = kDefaultRmtTxBufferSymbols);
 
     bool begin();
     void update();

@@ -100,6 +100,7 @@ Status EscController::begin(const EscControllerConfig &config)
     lowConfig.motorCount = _config.motorCount;
     lowConfig.motorPins = _config.motorPins;
     lowConfig.motorDirectionReversed = _config.motorDirectionReversed;
+    lowConfig.motorTxBufferSymbols = _config.motorTxBufferSymbols;
     lowConfig.bidirectionalDshot = _config.bidirectionalDshot;
     lowConfig.dshotMode = _config.dshotMode;
     lowConfig.throttleMinRaw = _config.throttleMinRaw;

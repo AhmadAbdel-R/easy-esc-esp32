@@ -68,11 +68,16 @@ EasyEsc::EasyEsc(
     bool m2Reversed,
     bool m3Reversed,
     bool m4Reversed,
-    bool bidirectionalDshot)
+    bool bidirectionalDshot,
+    uint16_t m1TxBufferSymbols,
+    uint16_t m2TxBufferSymbols,
+    uint16_t m3TxBufferSymbols,
+    uint16_t m4TxBufferSymbols)
 {
     _cfg.motorCount = motorCount;
     _cfg.motorPins = {m1, m2, m3, m4};
     _cfg.motorDirectionReversed = {m1Reversed, m2Reversed, m3Reversed, m4Reversed};
+    _cfg.motorTxBufferSymbols = {m1TxBufferSymbols, m2TxBufferSymbols, m3TxBufferSymbols, m4TxBufferSymbols};
     _cfg.bidirectionalDshot = bidirectionalDshot;
     _cfg.currentPin = currentPin;
     _cfg.currentZeroOffsetMv = currentZeroOffsetMv;
@@ -446,6 +451,7 @@ EscControllerConfig EasyEsc::makeControllerConfig(uint8_t motorCount) const
     cfg.motorCount = motorCount;
     cfg.motorPins = _cfg.motorPins;
     cfg.motorDirectionReversed = _cfg.motorDirectionReversed;
+    cfg.motorTxBufferSymbols = _cfg.motorTxBufferSymbols;
     cfg.bidirectionalDshot = _cfg.bidirectionalDshot;
     cfg.dshotMode = _cfg.dshotMode;
     cfg.throttleMinRaw = kDshotThrottleMinRaw;
@@ -475,7 +481,8 @@ EasyEscMotor::EasyEscMotor(
     float currentZeroOffsetMv,
     float currentMvPerAmp,
     bool reversed,
-    bool bidirectionalDshot)
+    bool bidirectionalDshot,
+    uint16_t txBufferSymbols)
     : _esc(1,
            motorPin,
            GPIO_NUM_NC,
@@ -491,7 +498,11 @@ EasyEscMotor::EasyEscMotor(
            false,
            false,
            false,
-           bidirectionalDshot)
+           bidirectionalDshot,
+           txBufferSymbols,
+           kDefaultRmtTxBufferSymbols,
+           kDefaultRmtTxBufferSymbols,
+           kDefaultRmtTxBufferSymbols)
 {
 }
 

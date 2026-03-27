@@ -1,5 +1,20 @@
 #include "esc_dshot_output.h"
 
+namespace
+{
+template <typename T>
+auto trySetTxBufferSymbols(T &driver, uint16_t symbols, int)
+    -> decltype(driver.setTxBufferSymbols(symbols), void())
+{
+    driver.setTxBufferSymbols(symbols);
+}
+
+template <typename T>
+void trySetTxBufferSymbols(T &, uint16_t, long)
+{
+}
+} // namespace
+
 namespace esc
 {
 bool EscDshotOutput::isConfigValid(const DshotOutputConfig &config)
@@ -391,6 +406,11 @@ Status EscDshotOutput::createDriver(uint8_t motor)
     }
 
     const gpio_num_t pin = _config.motorPins[motor];
+    uint16_t txBufferSymbols = _config.motorTxBufferSymbols[motor];
+    if (txBufferSymbols == 0)
+    {
+        txBufferSymbols = kDefaultRmtTxBufferSymbols;
+    }
     Serial.printf("[RMT] attach motor=%u gpio=%d mode=%u\n",
                   static_cast<unsigned>(motor),
                   static_cast<int>(pin),
@@ -408,6 +428,12 @@ Status EscDshotOutput::createDriver(uint8_t motor)
                       static_cast<int>(_lastDriverErrorCode));
         return Status::DriverError;
     }
+
+    // Newer DShotRMT builds support runtime channel memory sizing.
+    trySetTxBufferSymbols(*_drivers[motor], txBufferSymbols, 0);
+    Serial.printf("[RMT] attach cfg motor=%u tx_buffer_symbols=%u\n",
+                  static_cast<unsigned>(motor),
+                  static_cast<unsigned>(txBufferSymbols));
 
     const dshot_result_t initResult = _drivers[motor]->begin();
     if (!initResult.success)

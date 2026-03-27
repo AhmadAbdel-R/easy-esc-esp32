@@ -39,6 +39,11 @@ struct EscControllerConfig
     uint8_t motorCount = kMaxMotors;
     std::array<gpio_num_t, kMaxMotors> motorPins = {GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC, GPIO_NUM_NC};
     std::array<bool, kMaxMotors> motorDirectionReversed = {false, false, false, false};
+    std::array<uint16_t, kMaxMotors> motorTxBufferSymbols = {
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols,
+        kDefaultRmtTxBufferSymbols};
     bool bidirectionalDshot = false;
     dshot_mode_t dshotMode = DSHOT300;
     uint16_t throttleMinRaw = kDshotThrottleMinRaw;
