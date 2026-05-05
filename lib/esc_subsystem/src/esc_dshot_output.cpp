@@ -76,11 +76,11 @@ Status EscDshotOutput::begin(const DshotOutputConfig &config)
     _lastDriverErrorMotor = -1;
     _lastDriverErrorPin = GPIO_NUM_NC;
 
+    clearAllDrivers();
     for (uint8_t i = 0; i < kMaxMotors; ++i)
     {
         _lastThrottleRaw[i] = 0;
         _driverSuspended[i] = false;
-        clearDriver(i);
     }
 
     for (uint8_t i = 0; i < _config.motorCount; ++i)
@@ -88,12 +88,24 @@ Status EscDshotOutput::begin(const DshotOutputConfig &config)
         const Status status = createDriver(i);
         if (status != Status::Ok)
         {
+            // Ensure no partially initialized RMT channels remain allocated on failure.
+            clearAllDrivers();
+            _initialized = false;
+            _armed = false;
             return status;
         }
     }
 
     _initialized = true;
-    return stopAllMotors();
+    const Status stopStatus = stopAllMotors();
+    if (stopStatus != Status::Ok)
+    {
+        clearAllDrivers();
+        _initialized = false;
+        _armed = false;
+        return stopStatus;
+    }
+    return Status::Ok;
 }
 
 bool EscDshotOutput::isInitialized() const
@@ -393,9 +405,16 @@ Status EscDshotOutput::resumeMotorDriverFromPassthrough(uint8_t motor)
         return createStatus;
     }
 
+    const Status zeroStatus = sendMotorRaw(motor, 0);
+    if (zeroStatus != Status::Ok)
+    {
+        clearDriver(motor);
+        return zeroStatus;
+    }
+
     _driverSuspended[motor] = false;
     _lastThrottleRaw[motor] = 0;
-    return sendMotorRaw(motor, 0);
+    return Status::Ok;
 }
 
 Status EscDshotOutput::createDriver(uint8_t motor)
@@ -406,6 +425,8 @@ Status EscDshotOutput::createDriver(uint8_t motor)
     }
 
     const gpio_num_t pin = _config.motorPins[motor];
+    clearDriver(motor);
+
     uint16_t txBufferSymbols = _config.motorTxBufferSymbols[motor];
     if (txBufferSymbols == 0)
     {
@@ -479,6 +500,14 @@ void EscDshotOutput::clearDriver(uint8_t motor)
     }
 }
 
+void EscDshotOutput::clearAllDrivers()
+{
+    for (uint8_t i = 0; i < _drivers.size(); ++i)
+    {
+        clearDriver(i);
+    }
+}
+
 Status EscDshotOutput::sendMotorRaw(uint8_t motor, uint16_t valueRaw)
 {
     if (motor >= _config.motorCount)
@@ -487,10 +516,14 @@ Status EscDshotOutput::sendMotorRaw(uint8_t motor, uint16_t valueRaw)
     }
     if (!_drivers[motor])
     {
-        return Status::DriverError;
+        const Status createStatus = createDriver(motor);
+        if (createStatus != Status::Ok)
+        {
+            return createStatus;
+        }
     }
 
-    const dshot_result_t txResult = _drivers[motor]->sendThrottle(valueRaw);
+    dshot_result_t txResult = _drivers[motor]->sendThrottle(valueRaw);
     if (!txResult.success)
     {
         _lastDriverErrorCode = static_cast<int32_t>(txResult.result_code);
@@ -501,7 +534,33 @@ Status EscDshotOutput::sendMotorRaw(uint8_t motor, uint16_t valueRaw)
                       static_cast<int>(_lastDriverErrorPin),
                       static_cast<int>(_lastDriverErrorCode),
                       static_cast<unsigned>(valueRaw));
-        return Status::DriverError;
+
+        // One-shot recovery: rebuild the driver and retry the frame.
+        clearDriver(motor);
+        const Status recreateStatus = createDriver(motor);
+        if (recreateStatus != Status::Ok || !_drivers[motor])
+        {
+            return Status::DriverError;
+        }
+
+        txResult = _drivers[motor]->sendThrottle(valueRaw);
+        if (!txResult.success)
+        {
+            _lastDriverErrorCode = static_cast<int32_t>(txResult.result_code);
+            _lastDriverErrorMotor = static_cast<int8_t>(motor);
+            _lastDriverErrorPin = _config.motorPins[motor];
+            Serial.printf("[RMT] tx RETRY FAILED motor=%u gpio=%d code=%d throttle=%u\n",
+                          static_cast<unsigned>(motor),
+                          static_cast<int>(_lastDriverErrorPin),
+                          static_cast<int>(_lastDriverErrorCode),
+                          static_cast<unsigned>(valueRaw));
+            return Status::DriverError;
+        }
+
+        Serial.printf("[RMT] tx RECOVERED motor=%u gpio=%d throttle=%u\n",
+                      static_cast<unsigned>(motor),
+                      static_cast<int>(_config.motorPins[motor]),
+                      static_cast<unsigned>(valueRaw));
     }
 
     return Status::Ok;

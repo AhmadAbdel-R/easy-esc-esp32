@@ -52,6 +52,7 @@ private:
     static uint16_t clampRawThrottle(uint16_t valueRaw, const DshotOutputConfig &config);
 
     Status createDriver(uint8_t motor);
+    void clearAllDrivers();
     void clearDriver(uint8_t motor);
     Status sendMotorRaw(uint8_t motor, uint16_t valueRaw);
     Status sendAllStored();
